@@ -10,7 +10,7 @@ Bu Script, Pardus yüklü cihazlarda e-imza sürücülerinin yüklenmesini otomo
 6. Script Pardus 19 Sürümlerinde (XFCE ve GNOME) denenmiştir.
 
 # >KURULUM:
-* Öcelikle [BURADAN](https://raw.githubusercontent.com/yahyayildirim/belgenet_e_imza_kur/main/e_imza_kur_v2.sh) tıklayın. Çıkan ekranda sağ tıklayın ve farklı kaydet diyerek dosyayı herhangi bir yere kaydedin.
+* Öcelikle [BURADAN](https://raw.githubusercontent.com/yahyayildirim/belgenet_e_imza_kur/main/e_imza_kur_v2.sh) tıklayın. Çıkan ekranda sağ tıklayın ve sayfayı farklı kaydet diyerek dosyayı herhangi bir yere kaydedin.
 * Daha sonra dosyayı indirdiğiniz dizin/klasöre geçin.
 * Dosyanın olduğu dizinde Sağ tık yapıp Uçbirim Aç deyin.
 * ```chmod +x e_imza_kur_v2.sh``` yazın ve ENTER'a basın.

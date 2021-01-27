@@ -82,15 +82,25 @@ tubitak_src() {
 	dpkg -l akis 1>/dev/null 2>/dev/null
 	# shellcheck disable=SC2181
 	if [ $? -ne 0 ]; then
-		echo "$tarih >>> ${kirmizi}akis sürücüsünün sistemizde kurulu olmadığı tespit edildi...${sifirla}"; sleep 1		
-		echo "$tarih >>> ${yesil}Tubitak Akis E-İmza Sürücüsü İndiriliyor...${sifirla}"; sleep 1
-        if ! [ -f /tmp/akis.tar ]; then
-            curl -# -o /tmp/akis.tar http://akiskart.com.tr/dosyalar/akis_2.0_amd64.tar
-        fi		
-		echo "$tarih >>> ${mavi}Tubitak Akis E-İmza Sürücüsü arşivden çıkarılıyor...${sifirla}"; sleep 1
-		tar -xvf /tmp/akis.tar -C /tmp/ 1>/dev/null 2>/dev/null
-		echo "$tarih >>> ${gri}Tubitak Akis E-İmza Sürücüsü kuruluyor....${sifirla}"; sleep 1
-		apt install /tmp/akis_2.0_amd64.deb -y 1>/dev/null 2>/dev/null
+		echo "$tarih >>> ${kirmizi}HATA!! akis sürücüsünün sistemizde kurulu olmadığı tespit edildi...${sifirla}"; sleep 1
+		echo "$tarih >>> ${kirmizi}akis için depo kontrol ediliyor...${sifirla}"; sleep 1
+		apt-cache search ^akis$ 1>/dev/null 2>/dev/null
+		if [ $? -ne 0 ]; then
+			echo "$tarih >>> ${kirmizi}Tubitak Akis E-imza Sürücüsü depoda bulunmadığı için sitesinden indiriliyor...${sifirla}"; sleep 1
+			if ! [ -f /tmp/akis.tar ]; then
+				curl -# -o /tmp/akis.tar http://akiskart.com.tr/dosyalar/akis_2.0_amd64.tar
+			fi
+			echo "$tarih >>> ${yesil}Tubitak Akis E-İmza Sürücüsü arşivden çıkarılıyor...${sifirla}"; sleep 1
+			tar -xvf /tmp/akis.tar -C /tmp/ 1>/dev/null 2>/dev/null
+			echo "$tarih >>> ${yesil}Tubitak Akis E-İmza Sürücüsü kuruluyor....${sifirla}"; sleep 3
+			apt install /tmp/akis_2.0_amd64.deb -y 1>/dev/null 2>/dev/null
+			echo "$tarih >>> ${yesil}Tubitak Akis E-İmza başarılı bir şekilde kuruldu...${sifirla}"
+		else
+			echo "$tarih >>> ${yesil}Depoda akis $(apt-cache policy akis | grep -e "Aday:" | cut -d ":" -f 2 | cut -d " " -f 4) sürümü olduğu tespit edildi...${sifirla}"
+			echo "$tarih >>> ${yesil}Tubitak Akis E-İmza Sürücüsü kuruluyor...${sifirla}"; sleep 3
+			apt install akis -y 1>/dev/null 2>/dev/null
+			echo "$tarih >>> ${yesil}Tubitak Akis E-İmza Sürücüsü başarılı bir şekilde kuruldu...${sifirla}"
+		fi
 	else
 		echo "$tarih >>> ${yesil}akis sürücüleri sisteminizde kurulu${sifirla}"; sleep 1
 	fi
@@ -101,9 +111,21 @@ for A; do
 	which "$A" >/dev/null 2>&1 && {
 		echo -e "$tarih >>> ${yesil}$A sisteminizde kurulu${sifirla}"; sleep 1
 	} || {
-		echo -e "$tarih >>> ${kirmizi}HATA!! $A sisteminizde kurulu değil${sifirla}"; sleep 1
-		echo -e "$tarih >>> ${kirmizi}$A${sifirla} ${yesil}Programı kuruluyor...(Lütfen bekleyin)${sifirla}"; sleep 1
-		apt install "$A" -y 1>/dev/null 2>/dev/null
+		echo -e "$tarih >>> ${kirmizi}HATA!! $A programının sisteminizde kurulu olmadığı tespit edildi...${sifirla}"; sleep 1
+		echo "$tarih >>> ${kirmizi}$A için depo kontrol ediliyor...${sifirla}"
+
+		apt-cache search ^$A$ 1>/dev/null 2>/dev/null
+		if [ $? -ne 0 ]; then
+			echo "$tarih >>> ${kirmizi}$A depoda bulunmadı. Programı internetten bulup kurmanız gerekiyor...${sifirla}"; sleep 1
+			echo "$tarih >>> ${yesil}Kuruluma devam ediliyor...${sifirla}"; sleep 1
+
+		else
+			echo "$tarih >>> ${yesil}Depoda $A $(apt-cache policy $A | grep -e "Aday:" | cut -d ":" -f 2 | cut -d " " -f 4) sürümü olduğu tespit edildi...${sifirla}"
+			echo "$tarih >>> ${yesil}$A kuruluyor...${sifirla}"; sleep 3
+			apt install $A -y 1>/dev/null 2>/dev/null
+			echo "$tarih >>> ${yesil}$A başarılı bir şekilde kuruldu...${sifirla}"
+		fi
+
 	}
 done
 

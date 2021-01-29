@@ -30,7 +30,7 @@ clear
 echo -e $baslik
 
 echo "$tarih >>> ${mor}DEPOLAR GÜNCELLENİYOR...LÜTFEN BEKLEYİN...${sifirla}"
-#apt update
+apt update
 clear
 echo -e $baslik
 

@@ -56,7 +56,12 @@ eimza_applet() {
 	echo "$tarih >>> ${sari}Belgenet servisi aktif ediliyor...${sifirla}"; sleep 3
 	systemctl enable turksat-imza.service
 	systemctl restart turksat-imza.service
-	sleep 1
+	sleep 4
+	if [[ ${opt} == "1.0.44" ]]; then
+		rm -rf /usr/lib/libeTPKCS11.so
+	else
+		sudo ln -sfr /usr/lib/libeToken.so /usr/lib/libeTPKCS11.so	
+	fi
 	echo "$tarih >>> ${yesil}Kurulum başarılı bir şekilde tamamlandı...${sifirla}"; sleep 1
 	echo "$tarih >>> ${kalin}CTRL tuşuna basılı tutun ve fare ile ${banner}>>>${sifirla} ${kirmizi}https://localhost:9001 ${banner}<<<${sifirla} ${kalin}tıklayın...${sifirla}"
 }

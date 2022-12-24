@@ -16,16 +16,16 @@ Bu Script, Pardus yüklü cihazlarda e-imza sürücülerinin yüklenmesini otomo
 * sonra `./e_imza_kur_v2.sh` yazarak ENTER tuşuna basın.
 * Sizden yönetici parolası isteyecektir. Parola girdiğinizde ekranda hernagi bir şey görünmeyeceği için siz şifrenizi doğru bir şekilde girin ve ENTER tuşuna basın.
 ### > EKRAN GÖRÜNTÜSÜ-1:
-![KURULUM 1](resim/resim_kurulum-1.jpg)
+![KURULUM 1](resim/kurulum-1.jpg)
 
 ### > EKRAN GÖRÜNTÜSÜ-2:
-![KURULUM 2](resim/kurulum-2.jpeg)
+![KURULUM 2](resim/kurulum-2.jpg)
 
 ### > EKRAN GÖRÜNTÜSÜ-3:
-![KURULUM 3](resim/kurulum-3.jpeg)
+![KURULUM 3](resim/kurulum-3.jpg)
 
 ### > EKRAN GÖRÜNTÜSÜ-4:
-![KURULUM 4](resim/kurulum-4.jpeg)
+![KURULUM 4](resim/kurulum-4.jpg)
 
 ### > EKRAN GÖRÜNTÜSÜ-5:
-![KURULUM 5](resim/kurulum-5.jpeg)
+![KURULUM 5](resim/kurulum-5.jpg)

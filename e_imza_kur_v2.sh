@@ -23,37 +23,46 @@ turkuaz=$'\e[1;36m';
 banner=$'\e[5m';
 sifirla=$'\e[0m';
 kalin=$'\e[1m';
-tarih=$(date '+%d-%m-%Y %H:%M:%S')
 baslik="${kirmizi}###  \e[4mBELGENET E-İMZA KURULUM SCRİPTİNE HOŞ GELDİNİZ  ###${sifirla}\n"
 clear
 
+tarih(){
+    date '+%d-%m-%Y %H:%M:%S'
+}
+
 echo -e $baslik
 
-echo "$tarih >>> ${mor}DEPOLAR GÜNCELLENİYOR...LÜTFEN BEKLEYİN...${sifirla}"
+echo "$(tarih) >>> ${mor}DEPOLAR GÜNCELLENİYOR...LÜTFEN BEKLEYİN...${sifirla}"
 apt update
 clear
 echo -e $baslik
 
-echo "$tarih >>> ${turkuaz}PROGRAMLAR VE BAĞIMLILIKLAR KONTROL EDİLİYOR...${sifirla}"
+echo "$(tarih) >>> ${turkuaz}PROGRAMLAR VE BAĞIMLILIKLAR KONTROL EDİLİYOR...${sifirla}"
 
 eimza_applet() {
-	echo -e "\n$tarih >>> ${kirmizi}$opt sürümü indiriliyor... Bu biraz zaman alabilir lütfen bekleyin...${sifirla}"
+	opt=`echo ${opt} | awk -F'%20|/' '{ print $1 }'`
+	echo -e "\n$(tarih) >>> ${kirmizi}$opt sürümü indiriliyor... Bu biraz zaman alabilir lütfen bekleyin...${sifirla}"
+
 	if ! [ -f /tmp/"${opt}".zip ]; then
-		curl -# -o /tmp/"${opt}".zip $url''"$opt"'/'signNativeOsService_Linux_"$opt".zip
+		if [[ "${opt}" == "1.0.49" ]]; then
+			curl -# -o /tmp/"${opt}".zip $url"1.0.49%20yeni%20sertifikal%C4%B1/signNativeOsService_Linux_1.0.49_yeni%20sertifikali.zip" -k
+		else
+			curl -# -o /tmp/"${opt}".zip $url''"$opt"'/'signNativeOsService_Linux_"$opt".zip -k
+		fi
 	fi
 	#wget -q -c -nc $url''$opt'/'signNativeOsService_Linux_$opt.zip &&
 	sleep 1
-	echo "$tarih >>> ${mavi}Dosyalar arşivden çıkarılıyor...${sifirla}"; sleep 1
+	echo "$(tarih) >>> ${mavi}Dosyalar arşivden çıkarılıyor...${sifirla}"; sleep 1
 	unzip -q -o /tmp/"${opt}".zip -d /tmp/ 1>/dev/null 2>/dev/null
-	echo "$tarih >>> ${gri}Dosya izinleri değiştiriliyor....${sifirla}"; sleep 1
+	echo "$(tarih) >>> ${gri}Dosya izinleri değiştiriliyor....${sifirla}"; sleep 1
 	cd /tmp/signNativeOsService/bin/systemctl/ && chmod -R +x ./* 1>/dev/null 2>/dev/null
-	echo "$tarih >>> ${kirmizi}Eski belgenet e-imza servisi siliniyor....${sifirla}"; sleep 1
+	echo "$(tarih) >>> ${kirmizi}Eski belgenet e-imza servisi siliniyor....${sifirla}"; sleep 1
 	cd /tmp/signNativeOsService/bin/systemctl/ && ./uninstall.sh 1>/dev/null 2>/dev/null
 	sleep 1
-	echo "$tarih >>> ${mavi}Yeni belgenet e-imza servisi kuruluyor...${sifirla}"; sleep 1
+	echo "$(tarih) >>> ${mavi}Yeni belgenet e-imza servisi kuruluyor...${sifirla}"; sleep 1
 	cd /tmp/signNativeOsService/bin/systemctl/ && ./install.sh 1>/dev/null 2>/dev/null
 	sleep 1
-	echo "$tarih >>> ${sari}Belgenet servisi aktif ediliyor...${sifirla}"; sleep 3
+	echo "$(tarih) >>> ${sari}Belgenet servisi aktif ediliyor...${sifirla}"; sleep 3
 	systemctl enable turksat-imza.service
 	systemctl restart turksat-imza.service
 	sleep 4
@@ -62,73 +71,77 @@ eimza_applet() {
 	else
 		sudo ln -sfr /usr/lib/libeToken.so /usr/lib/libeTPKCS11.so	
 	fi
-	echo "$tarih >>> ${yesil}Kurulum başarılı bir şekilde tamamlandı...${sifirla}"; sleep 1
-	echo "$tarih >>> ${kalin}CTRL tuşuna basılı tutun ve fare ile ${banner}>>>${sifirla} ${kirmizi}https://localhost:9001 ${banner}<<<${sifirla} ${kalin}tıklayın...${sifirla}"
+	echo "$(tarih) >>> ${yesil}Kurulum başarılı bir şekilde tamamlandı...${sifirla}"; sleep 1
+	echo "$(tarih) >>> ${kalin}CTRL tuşuna basılı tutun ve fare ile ${banner}>>>${sifirla} ${kirmizi}https://localhost:9001 ${banner}<<<${sifirla} ${kalin}tıklayın...${sifirla}"
 }
 
 eguven_src() {
-	dpkg -l safenetauthenticationclient 1>/dev/null 2>/dev/null
-	# shellcheck disable=SC2181
-	if [ $? -ne 0 ]; then
-		echo "$tarih >>> ${kirmizi}safenetauthenticationclient sistemizde kurulu olmadığı tespit edildi...${sifirla}"; sleep 1
-		echo "$tarih >>> ${yesil}safenetauthenticationclient (10.7.77) indiriliyor...(Lütfen bekleyin)${sifirla}";sleep 1 
-		curl -# -o /tmp/safenet.zip https://www.globalsign.com/en/safenet-drivers/USB/10.7/Safenet_Linux_Installer_DEB_x64.zip
-		echo "$tarih >>> ${mavi}safenetauthenticationclient (10.7.77) arşivden çıkarılıyor...${sifirla}"; sleep 1
+	#
+	if [ $(apt-cache policy safenetauthenticationclient | wc -l) -lt 6 ]; then
+		echo "$(tarih) >>> ${kirmizi}safenetauthenticationclient sistemizde kurulu olmadığı tespit edildi...${sifirla}"; sleep 1
+		echo "$(tarih) >>> ${yesil}safenetauthenticationclient (10.7.77) indiriliyor...(Lütfen bekleyin)${sifirla}";sleep 1
+        if [ $(apt-cache policy libssl1.1 | wc -l) -lt 6 ]; then
+            curl -# -o /tmp/libssl.deb http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1-1ubuntu2.1~18.04.20_amd64.deb -k
+            #curl -# -o /tmp/libssl.deb http://depo.pardus.org.tr/guvenlik/pool/main/o/openssl/openssl_1.1.1n-0%2Bdeb11u3_amd64.deb -k
+            apt install -f /tmp/libssl.deb -yy 1>/dev/null 2>/dev/null
+        fi
+		if ! [ -f /tmp/safenet.zip ]; then
+            curl -# -o /tmp/safenet.zip https://www.globalsign.com/en/safenet-drivers/USB/10.7/Safenet_Linux_Installer_DEB_x64.zip -k
+		fi
+		echo "$(tarih) >>> ${mavi}safenetauthenticationclient (10.7.77) arşivden çıkarılıyor...${sifirla}"; sleep 1
 		unzip -q -o /tmp/safenet.zip -d /tmp/ 1>/dev/null 2>/dev/null
-		echo "$tarih >>> ${gri}safenetauthenticationclient (10.7.77) kuruluyor....${sifirla}"; sleep 1
-		apt install /tmp/safenetauthenticationclient_10.7.77_amd64.deb -y 1>/dev/null 2>/dev/null
-		apt install -f 1>/dev/null 2>/dev/null
+		echo "$(tarih) >>> ${gri}safenetauthenticationclient (10.7.77) kuruluyor....${sifirla}"; sleep 1
+        apt install -f -yy 1>/dev/null 2>/dev/null
+		apt install -f /tmp/safenetauthenticationclient_10.7.77_amd64.deb -yy 1>/dev/null 2>/dev/null
 	else
-		echo "$tarih >>> ${yesil}safenetauthenticationclient sisteminizde kurulu.${sifirla}"; sleep 1
+		echo "$(tarih) >>> ${yesil}safenetauthenticationclient sisteminizde kurulu.${sifirla}"; sleep 1
 	fi
 }
 
 tubitak_src() {
-	dpkg -l akis 1>/dev/null 2>/dev/null
-	# shellcheck disable=SC2181
-	if [ $? -ne 0 ]; then
-		echo "$tarih >>> ${kirmizi}HATA!! akis sürücüsünün sistemizde kurulu olmadığı tespit edildi...${sifirla}"; sleep 1
-		echo "$tarih >>> ${kirmizi}akis için depo kontrol ediliyor...${sifirla}"; sleep 1
-		apt-cache search ^akis$ 1>/dev/null 2>/dev/null
-		if [ $? -ne 0 ]; then
-			echo "$tarih >>> ${kirmizi}Tubitak Akis E-imza Sürücüsü depoda bulunmadığı için sitesinden indiriliyor...${sifirla}"; sleep 1
+	#
+    if [ $(apt-cache policy akis | wc -l) -lt 6 ]; then
+		echo "$(tarih) >>> ${kirmizi}HATA!! akis sürücüsünün sistemizde kurulu olmadığı tespit edildi...${sifirla}"; sleep 1
+        if [ $(apt-cache search akis | grep ^akis | wc -l) -ne 1 ]; then
+			echo "$(tarih) >>> ${kirmizi}Tubitak Akis E-imza Sürücüsü depoda bulunmadığı için sitesinden indiriliyor...${sifirla}"; sleep 1
 			if ! [ -f /tmp/akis.tar ]; then
-				curl -# -o /tmp/akis.tar http://akiskart.com.tr/dosyalar/akis_2.0_amd64.tar
+				curl -# -o /tmp/akis.tar https://kamusm.bilgem.tubitak.gov.tr/islemler/surucu_yukleme_servisi/suruculer/AkisKart/linux/akis_2.0_amd64.tar -k
 			fi
-			echo "$tarih >>> ${yesil}Tubitak Akis E-İmza Sürücüsü arşivden çıkarılıyor...${sifirla}"; sleep 1
+			echo "$(tarih) >>> ${yesil}Tubitak Akis E-İmza Sürücüsü arşivden çıkarılıyor...${sifirla}"; sleep 1
 			tar -xvf /tmp/akis.tar -C /tmp/ 1>/dev/null 2>/dev/null
-			echo "$tarih >>> ${yesil}Tubitak Akis E-İmza Sürücüsü kuruluyor....${sifirla}"; sleep 3
-			apt install /tmp/akis_2.0_amd64.deb -y 1>/dev/null 2>/dev/null
-			echo "$tarih >>> ${yesil}Tubitak Akis E-İmza başarılı bir şekilde kuruldu...${sifirla}"
+			echo "$(tarih) >>> ${yesil}Tubitak Akis E-İmza Sürücüsü kuruluyor....${sifirla}"; sleep 3
+            apt install -f -yy 1>/dev/null 2>/dev/null
+			apt install /tmp/akis_2.0_amd64.deb -yy 1>/dev/null 2>/dev/null
+			echo "$(tarih) >>> ${yesil}Tubitak Akis E-İmza başarılı bir şekilde kuruldu...${sifirla}"
 		else
-			echo "$tarih >>> ${yesil}Depoda akis $(apt-cache policy akis | grep -e "Aday:" | cut -d ":" -f 2 | cut -d " " -f 4) sürümü olduğu tespit edildi...${sifirla}"
-			echo "$tarih >>> ${yesil}Tubitak Akis E-İmza Sürücüsü kuruluyor...${sifirla}"; sleep 3
+			echo "$(tarih) >>> ${yesil}Depoda akis $(apt-cache policy akis | grep -e "Aday:" | cut -d ":" -f 2 | cut -d " " -f 4) sürümü olduğu tespit edildi...${sifirla}"
+			echo "$(tarih) >>> ${yesil}Tubitak Akis E-İmza Sürücüsü kuruluyor...${sifirla}"; sleep 3
 			apt install akis -y 1>/dev/null 2>/dev/null
-			echo "$tarih >>> ${yesil}Tubitak Akis E-İmza Sürücüsü başarılı bir şekilde kuruldu...${sifirla}"
+			echo "$(tarih) >>> ${yesil}Tubitak Akis E-İmza Sürücüsü başarılı bir şekilde kuruldu...${sifirla}"
 		fi
 	else
-		echo "$tarih >>> ${yesil}akis sürücüleri sisteminizde kurulu${sifirla}"; sleep 1
+		echo "$(tarih) >>> ${yesil}akis sürücüleri sisteminizde kurulu${sifirla}"; sleep 1
 	fi
 }
 
 set curl wget unzip
 for A; do
 	which "$A" >/dev/null 2>&1 && {
-		echo -e "$tarih >>> ${yesil}$A sisteminizde kurulu${sifirla}"; sleep 1
+		echo -e "$(tarih) >>> ${yesil}$A sisteminizde kurulu${sifirla}"; sleep 1
 	} || {
-		echo -e "$tarih >>> ${kirmizi}HATA!! $A programının sisteminizde kurulu olmadığı tespit edildi...${sifirla}"; sleep 1
-		echo "$tarih >>> ${kirmizi}$A için depo kontrol ediliyor...${sifirla}"
+		echo -e "$(tarih) >>> ${kirmizi}HATA!! $A programının sisteminizde kurulu olmadığı tespit edildi...${sifirla}"; sleep 1
+		echo "$(tarih) >>> ${kirmizi}$A için depo kontrol ediliyor...${sifirla}"
 
 		apt-cache search ^$A$ 1>/dev/null 2>/dev/null
 		if [ $? -ne 0 ]; then
-			echo "$tarih >>> ${kirmizi}$A depoda bulunmadı. Programı internetten bulup kurmanız gerekiyor...${sifirla}"; sleep 1
-			echo "$tarih >>> ${yesil}Kuruluma devam ediliyor...${sifirla}"; sleep 1
+			echo "$(tarih) >>> ${kirmizi}$A depoda bulunmadı. Programı internetten bulup kurmanız gerekiyor...${sifirla}"; sleep 1
+			echo "$(tarih) >>> ${yesil}Kuruluma devam ediliyor...${sifirla}"; sleep 1
 
 		else
-			echo "$tarih >>> ${yesil}Depoda $A $(apt-cache policy $A | grep -e "Aday:" | cut -d ":" -f 2 | cut -d " " -f 4) sürümü olduğu tespit edildi...${sifirla}"
-			echo "$tarih >>> ${yesil}$A kuruluyor...${sifirla}"; sleep 3
+			echo "$(tarih) >>> ${yesil}Depoda $A $(apt-cache policy $A | grep -e "Aday:" | cut -d ":" -f 2 | cut -d " " -f 4) sürümü olduğu tespit edildi...${sifirla}"
+			echo "$(tarih) >>> ${yesil}$A kuruluyor...${sifirla}"; sleep 3
 			apt install $A -y 1>/dev/null 2>/dev/null
-			echo "$tarih >>> ${yesil}$A başarılı bir şekilde kuruldu...${sifirla}"
+			echo "$(tarih) >>> ${yesil}$A başarılı bir şekilde kuruldu...${sifirla}"
 		fi
 
 	}
@@ -168,19 +181,19 @@ jdk_version() {
 
 
 java_indir() {
-	echo -e "\n$tarih >>> ${yesil}Java ($java_sec) sürümü kuruluyor... Bu biraz zaman alabilir lütfen bekleyin...${sifirla}"; sleep 1
+	echo -e "\n$(tarih) >>> ${yesil}Java ($java_sec) sürümü kuruluyor... Bu biraz zaman alabilir lütfen bekleyin...${sifirla}"; sleep 1
 	apt install $java_sec -y 1>/dev/null 2>/dev/null
 	if [ $? -ne 0 ]; then
-		echo "$tarih >>> ${kirmizi}Kurulum başarısız oldu...${sifirla}"; sleep 1
+		echo "$(tarih) >>> ${kirmizi}Kurulum başarısız oldu...${sifirla}"; sleep 1
 	else
-		echo "$tarih >>> ${yesil}Java ($java_sec) sürümü başarılı bir şekilde kuruldu.${sifirla}"; sleep 1
+		echo "$(tarih) >>> ${yesil}Java ($java_sec) sürümü başarılı bir şekilde kuruldu.${sifirla}"; sleep 1
 	fi
 }
 
 
 java_ver="$(jdk_version)"
 if [[ $java_ver -lt "7" ]]; then
-	echo "$tarih >>> ${kirmizi}HATA!! Java'nın sisteminizde kurulu olmadığı tespit edildi.${sifirla}"; sleep 1
+	echo "$(tarih) >>> ${kirmizi}HATA!! Java'nın sisteminizde kurulu olmadığı tespit edildi.${sifirla}"; sleep 1
 	echo -e "\n${kirmizi}###  DEPODA BULUNAN JAVA SÜRÜMLERİ:${sifirla}"
 
 	jre_ver1=($(apt-cache search "openjdk-[0-9]-jre$"))
@@ -202,22 +215,24 @@ ${kalin}Kurmak istediğiniz sürümün sıra numarasını yazın ve ENTER tuşun
 	done
 
 else
-	echo -e "$tarih >>> ${yesil}Java'nın $java_ver sürümü sisteminizde kurulu${sifirla}"; sleep 1
+	echo -e "$(tarih) >>> ${yesil}Java'nın $java_ver sürümü sisteminizde kurulu${sifirla}"; sleep 1
 fi
 
+echo "$(tarih) >>> ${turkuaz}Sürüm numaraları${sifirla} ${kalin}www.belgenet.com.tr${sifirla} ${turkuaz}adresinden getiriliyor.${sifirla}"; sleep 1
+echo "$(tarih) >>> ${gri}İnternet hızınıza göre biraz zaman alabilir, Lütfen bekleyin...${sifirla}"; sleep 1
 
-echo "$tarih >>> ${turkuaz}Sürüm numaraları${sifirla} ${kalin}www.belgenet.com.tr${sifirla} ${turkuaz}adresinden getiriliyor.${sifirla}"; sleep 1
-echo "$tarih >>> ${gri}İnternet hızınıza göre biraz zaman alabilir, Lütfen bekleyin...${sifirla}"; sleep 1
+curl -sL https://localhost:9001 -k > /dev/null
+if [ $? == "0" ]; then
+    version=$(curl -sL https://localhost:9001 -k | grep "Version" | awk -F " " '{ print $3 }')
+else
+    version="Yüklü değil"
+fi
 
-url1="https://localhost:9001"
-wget -q -c -O /tmp/1.html $url1 --no-check-certificate
-version=$(grep "Version" /tmp/1.html | tail -1 | awk -F " " '{ print $3 }')
-
-url="http://www.belgenet.com.tr/statics/BelgenetImzaServisiKurulumDosyalari/Linux/"
+url="https://www.belgenet.com.tr/statics/BelgenetImzaServisiKurulumDosyalari/Linux/"
 wget -q -c -O /tmp/index.html $url --no-check-certificate
-# shellcheck disable=SC2181
+
 if [ $? -ne 0 ]; then
-	echo -e "$tarih >>> ${kalin}Belgenet web sitesine erişilemiyor... Sunucularda problem olabilir veya internetiniz yok.${sifirla}"; sleep 1
+	echo -e "$(tarih) >>> ${kalin}Belgenet web sitesine erişilemiyor... Sunucularda problem olabilir veya internetiniz yok.${sifirla}"; sleep 1
 	exit 2
 fi
 
@@ -226,8 +241,8 @@ echo -e "\n${kirmizi}###  BELGENET E-İMZA SERVİSİ SÜRÜMLERİ:${sifirla}"
 
 while read -r line
 do
-	# shellcheck disable=SC2207
-	eimza_vers+=($(echo "$line" | sed -n '/\([0-9]\+\.\)/p' | awk -F '"' '{ print $2 }' | awk -F '/' '{ print $1 }'))
+	#eimza_vers+=($(echo "$line" | sed -n '/\([0-9]\+\.\)/p' | awk -F'"' '{ print $2 }' | awk -F'/' '{ print $1 }'))
+	eimza_vers+=($(echo "$line" | sed -n '/\([0-9]\+\.\)/p' | awk -F'"' '{ print $2 }' | awk -F'%20|/' '{ print $1 }'))
 done < /tmp/index.html
 
 PS3="

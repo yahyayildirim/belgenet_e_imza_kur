@@ -76,11 +76,10 @@ eimza_applet() {
 }
 
 eguven_src() {
-	#
-	if [ $(apt-cache policy safenetauthenticationclient | wc -l) -lt 6 ]; then
+	if [ $(apt list --installed 2>/dev/null | grep ^safenetauthenticationclient | wc -l) -lt 1 ]; then
 		echo "$(tarih) >>> ${kirmizi}safenetauthenticationclient sistemizde kurulu olmadığı tespit edildi...${sifirla}"; sleep 1
 		echo "$(tarih) >>> ${yesil}safenetauthenticationclient (10.7.77) indiriliyor...(Lütfen bekleyin)${sifirla}";sleep 1
-        if [ $(apt-cache policy libssl1.1 | wc -l) -lt 6 ]; then
+        if [ $(apt list --installed 2>/dev/null | grep ^libssl1.1 | wc -l) -lt 1 ]; then
             curl -# -o /tmp/libssl.deb http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1-1ubuntu2.1~18.04.20_amd64.deb -k
             #curl -# -o /tmp/libssl.deb http://depo.pardus.org.tr/guvenlik/pool/main/o/openssl/openssl_1.1.1n-0%2Bdeb11u3_amd64.deb -k
             apt install -f /tmp/libssl.deb -yy 1>/dev/null 2>/dev/null
@@ -99,10 +98,9 @@ eguven_src() {
 }
 
 tubitak_src() {
-	#
-    if [ $(apt-cache policy akis | wc -l) -lt 6 ]; then
+	if [ $(apt list --installed 2>/dev/null| grep ^akis | wc -l) -lt 1 ]; then
 		echo "$(tarih) >>> ${kirmizi}HATA!! akis sürücüsünün sistemizde kurulu olmadığı tespit edildi...${sifirla}"; sleep 1
-        if [ $(apt-cache search akis | grep ^akis | wc -l) -ne 1 ]; then
+        if [ $(apt list --all-versions akis 2>/dev/null| grep ^akis | wc -l) -lt 1 ]; then
 			echo "$(tarih) >>> ${kirmizi}Tubitak Akis E-imza Sürücüsü depoda bulunmadığı için sitesinden indiriliyor...${sifirla}"; sleep 1
 			if ! [ -f /tmp/akis.tar ]; then
 				curl -# -o /tmp/akis.tar https://kamusm.bilgem.tubitak.gov.tr/islemler/surucu_yukleme_servisi/suruculer/AkisKart/linux/akis_2.0_amd64.tar -k

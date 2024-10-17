@@ -3,7 +3,7 @@ Bu Script, Pardus yüklü cihazlarda e-imza sürücülerinin yüklenmesini otomo
 
 # SCRİPT İLE;
 1. Sisteminizde Akis Kart Sürücüsü yüklü değilse yüklenecek,
-2. Safenet Kart Sürücüsü Yüklü değilse yüklenecek. Öntanımlı olarak scriptte kapalı.
+2. Safenet Kart Sürücüsü Yüklü değilse yüklenecek. (Öntanımlı olarak kapalı, 149. satırda # işaretini kaldırmanız gerekiyor.)
 3. Belgenet Tarayıcı Servisi (Applet) yüklü değilse, seçim ekranından istediğiniz versiyonu yükleyebilecek.
 4. unzip, wget ve curl kurulu değilse kuracak. (Scriptin çalışması için gereklidir.)
 5. Java kurulu değilse depolarda arayacak, varsa kuracak yoksa herhangi bir işlem yapmayacak. Ancak java olmadan e-imza çalışmayacaktır.

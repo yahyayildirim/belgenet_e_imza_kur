@@ -146,7 +146,7 @@ for A; do
 done
 
 tubitak_src
-eguven_src
+#eguven_src
 
 jdk_version() {
 	local result
@@ -181,6 +181,8 @@ jdk_version() {
 java_indir() {
 	echo -e "\n$(tarih) >>> ${yesil}Java ($java_sec) sürümü kuruluyor... Bu biraz zaman alabilir lütfen bekleyin...${sifirla}"; sleep 1
 	apt install $java_sec -y 1>/dev/null 2>/dev/null
+	update-alternatives --remove-all java 1>/dev/null 2>/dev/null
+	update-alternatives --install /usr/bin/java java /usr/lib/jvm/oracle-java8-jdk-amd64/jre/bin/java 9999
 	if [ $? -ne 0 ]; then
 		echo "$(tarih) >>> ${kirmizi}Kurulum başarısız oldu...${sifirla}"; sleep 1
 	else
@@ -190,18 +192,21 @@ java_indir() {
 
 
 java_ver="$(jdk_version)"
-if [[ $java_ver -lt "7" ]]; then
+if [[ $java_ver -ne "8" ]]; then
 	echo "$(tarih) >>> ${kirmizi}HATA!! Java'nın sisteminizde kurulu olmadığı tespit edildi.${sifirla}"; sleep 1
 	echo -e "\n${kirmizi}###  DEPODA BULUNAN JAVA SÜRÜMLERİ:${sifirla}"
 
-	jre_ver1=($(apt-cache search "openjdk-[0-9]-jre$"))
-	jre_ver2=($(apt-cache search "openjdk-[0-9]+[0-9]-jre$"))
-	jdk_ver1=($(apt-cache search "openjdk-[0-9]-jdk$"))
-	jdk_ver2=($(apt-cache search "openjdk-[0-9]+[0-9]-jdk$"))	
+	jre_ver1=($(apt-cache search "oracle-java8-jre$"))
+	jdk_ver1=($(apt-cache search "oracle-java8-jdk$"))	
+	#jre_ver2=($(apt-cache search "openjdk-[0-9]-jre$"))
+	#jre_ver3=($(apt-cache search "openjdk-[0-9]+[0-9]-jre$"))
+	#jdk_ver2=($(apt-cache search "openjdk-[0-9]-jdk$"))
+	#jdk_ver3=($(apt-cache search "openjdk-[0-9]+[0-9]-jdk$"))
+
 
 	PS3="
 ${kalin}Kurmak istediğiniz sürümün sıra numarasını yazın ve ENTER tuşuna basın:${sifirla} "
-	select java_sec in ${jre_ver1} ${jre_ver2} ${jdk_ver1} ${jdk_ver2}
+	select java_sec in ${jre_ver1} ${jdk_ver1} #${jre_ver2} ${jre_ver3} ${jdk_ver2} ${jdk_ver3}
 	do
 		if [ "$java_sec" == ${java_sec[*]} ]; then
 			java_indir
